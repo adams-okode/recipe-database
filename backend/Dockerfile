@@ -1,3 +1,4 @@
+# PHP-FPM Dockerfile
 FROM php:8.1-fpm
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -11,8 +12,11 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     zip \
     unzip \
+    libonig-dev \
+    libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd
+    && docker-php-ext-install gd \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath opcache
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

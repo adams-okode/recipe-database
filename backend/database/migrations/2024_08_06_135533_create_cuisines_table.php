@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('recipes', function (Blueprint $table) {
+        Schema::create('cuisines', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('cuisine_id')->constrained('cuisines')->onDelete('cascade');
-            $table->text('instructions');
-            $table->string('image_path')->nullable();
+            $table->string('name')->unique();
             $table->timestamps();
         });
     }
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('recipes');
+        Schema::dropIfExists('cuisines');
     }
 };
