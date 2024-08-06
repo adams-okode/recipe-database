@@ -8,12 +8,8 @@ services:
     container_name: recipe_app
     ports:
       - 8000:8000
-    environment:
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_DATABASE=recipe_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=secret
+    env_file:
+      - ./.env
     volumes:
       - ./backend:/var/www/html
     depends_on:

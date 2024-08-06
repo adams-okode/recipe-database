@@ -1,5 +1,7 @@
 FROM php:8.1-fpm
 
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
@@ -18,13 +20,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Install Laravel
+# Copy existing application directory contents
 COPY . .
 
-RUN composer install
+# Install Laravel dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Expose port
+# Expose port 8000 for Laravel development server
 EXPOSE 8000
 
-# Run Laravel server
+# Start Laravel development server
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
