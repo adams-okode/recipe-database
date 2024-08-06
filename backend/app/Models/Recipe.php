@@ -16,6 +16,9 @@ class Recipe extends Model
         'image_path',
     ];
 
+    protected $appends = ['image_url'];
+
+
     /**
      * Get the cuisine that the recipe belongs to.
      */
@@ -30,5 +33,21 @@ class Recipe extends Model
     public function ingredients()
     {
         return $this->hasMany(Ingredient::class);
+    }
+
+    /**
+     * Accessor for the full image URL.
+     *
+     * @return string
+     */
+    public function getImageUrlAttribute(): string
+    {
+        // Check if the image path is already a full URL
+        if (filter_var($this->attributes['image_path'], FILTER_VALIDATE_URL)) {
+            return $this->attributes['image_path'];
+        }
+
+        // Prepend the app URL to the image path
+        return config('app.url') . '/storage/' . $this->attributes['image_path'];
     }
 }

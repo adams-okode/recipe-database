@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Recipe;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class RecipeController extends Controller
 {
@@ -14,7 +16,7 @@ class RecipeController extends Controller
      */
     public function index()
     {
-        $recipes = Recipe::with('cuisine', 'ingredients')->paginate();
+        $recipes = Recipe::with('cuisine', 'ingredients')->orderByDesc('created_at')->paginate(10);
         return response()->json($recipes);
     }
 
@@ -26,7 +28,7 @@ class RecipeController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'cuisine_id' => 'required|exists:cuisines,id',
             'instructions' => 'required|string',
@@ -38,6 +40,9 @@ class RecipeController extends Controller
 
         // Handle image upload
         $imagePath = null;
+
+        Log::info($request->hasFile('image'));
+
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('images', 'public');
         }
@@ -83,16 +88,67 @@ class RecipeController extends Controller
      */
     public function update(Request $request, Recipe $recipe)
     {
-        $validatedData = $request->validate([
+        Log::info(json_encode($request->all()));
+        // Validate incoming data
+        $request->validate([
             'name' => 'required|string|max:255',
             'cuisine_id' => 'required|exists:cuisines,id',
             'instructions' => 'required|string',
-            'image_path' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'ingredients' => 'required|array',
+            'ingredients.*.id' => 'nullable|exists:ingredients,id',
+            'ingredients.*.name' => 'required|string|max:255',
+            'ingredients.*.quantity' => 'required|string|max:50',
         ]);
 
-        $recipe->update($validatedData);
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete the old image if a new one is uploaded
+            if ($recipe->image_path) {
+                Storage::disk('public')->delete($recipe->image_path);
+            }
+            $imagePath = $request->file('image')->store('images', 'public');
+        } else {
+            $imagePath = $recipe->image_path; // Keep the current image if none is uploaded
+        }
 
-        return response()->json($recipe);
+        // Extract recipe data from validated data
+        $recipeData = $request->only(['name', 'cuisine_id', 'instructions']);
+        $recipeData['image_path'] = $imagePath;
+
+        // Update the recipe
+        $recipe->update($recipeData);
+
+        // Update or create the ingredients
+        $ingredientsData = $request->input('ingredients', []);
+        $existingIngredientIds = $recipe->ingredients->pluck('id')->toArray();
+
+        // Loop through each ingredient from the request
+        foreach ($ingredientsData as $ingredientData) {
+            if (isset($ingredientData['id'])) {
+                // Update existing ingredient
+                $ingredient = $recipe->ingredients()->find($ingredientData['id']);
+                if ($ingredient) {
+                    $ingredient->update([
+                        'name' => $ingredientData['name'],
+                        'quantity' => $ingredientData['quantity'],
+                    ]);
+                }
+                // Remove ID from the list of existing IDs to leave only those that need to be deleted
+                $existingIngredientIds = array_diff($existingIngredientIds, [$ingredientData['id']]);
+            } else {
+                // Create new ingredient
+                $recipe->ingredients()->create([
+                    'name' => $ingredientData['name'],
+                    'quantity' => $ingredientData['quantity'],
+                ]);
+            }
+        }
+
+        // Optionally delete ingredients that are no longer present in the request
+        $recipe->ingredients()->whereIn('id', $existingIngredientIds)->delete();
+
+        return response()->json($recipe->load('ingredients'));
     }
 
     /**
