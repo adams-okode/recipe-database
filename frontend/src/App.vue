@@ -2,7 +2,7 @@
   <div class="">
     <Toast />
     <header-nav />
-    <section class="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
+    <section class="bg-gray-50 py-4 antialiased dark:bg-gray-900 md:py-4">
       <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
         <router-view></router-view>
       </div>

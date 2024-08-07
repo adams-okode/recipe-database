@@ -2,6 +2,7 @@
   <div
     class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-900"
   >
+    <slot name="back"></slot>
     <h1 class="text-3xl font-bold text-center mb-8">{{ mode }} Recipe</h1>
     <form @submit.prevent="submitRecipe" class="space-y-6">
       <!-- Recipe Name -->

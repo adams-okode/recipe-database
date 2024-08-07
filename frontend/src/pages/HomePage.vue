@@ -94,6 +94,13 @@
         v-model="selectedSort"
         @change="applySort"
       />
+      <Button
+        icon="pi pi-plus"
+        as="router-link"
+        label="New Recipe"
+        to="/recipe"
+        severity="success"
+      />
     </div>
   </div>
 
