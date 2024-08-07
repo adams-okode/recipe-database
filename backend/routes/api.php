@@ -18,6 +18,13 @@ use App\Http\Controllers\CuisineController;
 |
 */
 
-Route::apiResource('recipes', RecipeController::class);
+// Recipes CRUD Routes
+Route::get('recipes', [RecipeController::class, 'index'])->name('recipes.index');
+Route::post('recipes', [RecipeController::class, 'store'])->name('recipes.store');
+Route::get('recipes/{recipe}', [RecipeController::class, 'show'])->name('recipes.show');
+Route::post('recipes/{recipe}', [RecipeController::class, 'update'])->name('recipes.update');
+Route::patch('recipes/{recipe}', [RecipeController::class, 'update'])->name('recipes.patch');
+Route::delete('recipes/{recipe}', [RecipeController::class, 'destroy'])->name('recipes.destroy');
+
 Route::apiResource('ingredients', IngredientController::class);
 Route::apiResource('cuisines', CuisineController::class);

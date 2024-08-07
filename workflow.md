@@ -13,3 +13,5 @@ php artisan make:model Ingredient -m
 php artisan make:controller RecipeController --resource
 
 php artisan migrate:fresh --seed
+
+php artisan scribe:generate

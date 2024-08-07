@@ -88,9 +88,8 @@ class RecipeController extends Controller
      */
     public function update(Request $request, Recipe $recipe)
     {
-        Log::info(json_encode($request->all()));
         // Validate incoming data
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'cuisine_id' => 'required|exists:cuisines,id',
             'instructions' => 'required|string',
@@ -100,6 +99,8 @@ class RecipeController extends Controller
             'ingredients.*.name' => 'required|string|max:255',
             'ingredients.*.quantity' => 'required|string|max:50',
         ]);
+
+        Log::info('Validated data: ', $validatedData); // Log the validated data
 
         // Handle image upload
         if ($request->hasFile('image')) {

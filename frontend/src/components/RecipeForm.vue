@@ -214,14 +214,19 @@ const submitRecipe = async () => {
       data.append("image", formData.value.image);
     }
 
+    // Log the FormData entries for debugging
+    for (let pair of data.entries()) {
+      console.log(pair[0] + ", " + pair[1]);
+    }
+
     // Choose method and endpoint based on mode
-    const method = props.recipe && props.recipe.id ? "PUT" : "POST";
+
     const url = `http://localhost:8000/api/recipes${
-      method === "PUT" ? `/${props.recipe!.id}` : ""
+      mode.value === "Update" ? `/${props.recipe!.id}` : ""
     }`;
 
     const response = await axios({
-      method,
+      method: "POST",
       url,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -232,7 +237,6 @@ const submitRecipe = async () => {
 
     console.log(`${mode.value} recipe successfully:`, response.data);
     alert(`${mode.value} recipe successfully!`);
-    resetForm();
   } catch (error) {
     console.error(error);
     alert(`Failed to ${mode.value.toLowerCase()} recipe. Please try again.`);
