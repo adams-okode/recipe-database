@@ -100,7 +100,7 @@ Follow these steps to set up and run the project on your local machine. This gui
 ### Additional Notes
 
 - **Environment Configuration**: Ensure that the `.env` file contains all the necessary environment variables required for your application to run correctly.
-- **Docker Configuration**: Verify that your `docker-compose.yml` file correctly specifies the service configurations, such as ports, volumes, and environment variables.
+- **Docker Configuration**: Verify that your `compose.yml` file correctly specifies the service configurations, such as ports, volumes, and environment variables.
 
 - **Frontend Development Server**: The default port for Vite (used by many modern JavaScript frameworks) is `5173`. If you encounter issues or need a different port, you can modify the `vite.config.js` or equivalent configuration file.
 
