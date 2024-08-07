@@ -12,8 +12,6 @@ Follow these steps to set up and run the project on your local machine. This gui
    git clone git@github.com:adams-okode/recipe-database.git
    ```
 
-   Replace `<repository-url>` with the actual URL of your Git repository.
-
 2. **Copy Environment Variables**
 
    Navigate to the project directory and copy the sample environment file to create your own `.env` file:
@@ -44,7 +42,7 @@ Follow these steps to set up and run the project on your local machine. This gui
    ```
 
    - `exec -it`: Executes a command in a running container with an interactive terminal.
-   - `app`: Replace `app` with the actual service name defined in your `docker-compose.yml` file if it's different.
+   - `app`: Replace `app` with the actual service name defined in your `compose.yml` file if it's different.
 
 5. **Generate Test Data**
 
