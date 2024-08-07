@@ -12,11 +12,36 @@ class RecipeController extends Controller
     /**
      * Display a listing of the recipes.
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
-        $recipes = Recipe::with('cuisine', 'ingredients')->orderByDesc('created_at')->paginate(10);
+        // Start a query with eager loading of relationships
+        $query = Recipe::with('cuisine', 'ingredients');
+
+        // Filter by cuisine_id if provided
+        if ($request->has('cuisine_id') && $request->cuisine_id !== null) {
+            $query->where('cuisine_id', $request->cuisine_id);
+        }
+
+        // Free text search on name
+        if ($request->has('search') && $request->search !== null) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Sort by column if specified
+        if ($request->has('sort_by') && in_array($request->sort_by, ['name', 'created_at', 'updated_at'])) {
+            $sortDirection = $request->has('sort_direction') && $request->sort_direction === 'asc' ? 'asc' : 'desc';
+            $query->orderBy($request->sort_by, $sortDirection);
+        } else {
+            // Default sorting by created_at in descending order
+            $query->orderByDesc('created_at');
+        }
+
+        // Paginate the results
+        $recipes = $query->paginate(10);
+
         return response()->json($recipes);
     }
 
