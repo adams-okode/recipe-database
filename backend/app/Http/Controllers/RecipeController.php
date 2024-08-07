@@ -40,7 +40,7 @@ class RecipeController extends Controller
         }
 
         // Paginate the results
-        $recipes = $query->paginate(10);
+        $recipes = $query->paginate(9);
 
         return response()->json($recipes);
     }

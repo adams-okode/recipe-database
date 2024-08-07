@@ -62,26 +62,22 @@
       </h2>
     </div>
     <div class="flex items-center space-x-4">
-      <InputText
-        v-model="searchQuery"
-        @input="debouncedSearch"
-        placeholder="Search Recipes..."
-        class="p-inputtext-sm"
-      />
-      <Button
-        label="Filters"
-        icon="pi pi-filter"
-        class="p-button-outlined"
-        @click="showFilters = !showFilters"
-        aria-expanded="showFilters"
-      />
+      <IconField>
+        <InputIcon class="pi pi-search" />
+        <InputText
+          v-model="searchQuery"
+          @input="debouncedSearch"
+          placeholder="Search Recipes..."
+        />
+      </IconField>
+
       <Dropdown
-        v-if="showFilters"
         :options="filterOptions"
+        icon="pi pi-filter"
         optionLabel="label"
         optionValue="value"
         class="w-36"
-        placeholder="Select a Filter"
+        placeholder="Cuisine"
         v-model="selectedFilter"
         @change="applyFilter"
       />
@@ -108,10 +104,7 @@
     <ProgressSpinner />
   </div>
 
-  <div
-    v-else
-    class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4"
-  >
+  <div v-else class="mb-1 grid gap-3 sm:grid-cols-2 md:mb-4 md:grid-cols-3">
     <template v-for="recipe in recipes.data" :key="recipe.id">
       <router-link :to="`/recipe/${recipe.id}`">
         <recipe-card :recipe="recipe"></recipe-card>
@@ -119,7 +112,7 @@
     </template>
   </div>
 
-  <div class="flex justify-center mt-4">
+  <div class="flex justify-center mt-2">
     <button
       @click="handlePageChange(recipes.prev_page_url ? currentPage - 1 : null)"
       :disabled="!recipes.prev_page_url"
@@ -145,6 +138,8 @@ import RecipeCard from "../components/RecipeCard.vue";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import ProgressSpinner from "primevue/progressspinner";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
 import { debounce } from "lodash";
 
 import { Cuisine, RecipesResponse } from "../data";
@@ -154,7 +149,6 @@ const recipes: Ref<RecipesResponse> = ref({} as RecipesResponse);
 const currentPage = ref(1);
 
 const loading = ref(false);
-const showFilters = ref(false);
 const searchQuery = ref<string | null>(null);
 const selectedFilter = ref<string | null>(null);
 const selectedSort = ref<string | null>(null);
