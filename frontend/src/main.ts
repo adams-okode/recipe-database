@@ -4,6 +4,8 @@ import { createPinia } from "pinia";
 import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 
+import ToastService from "primevue/toastservice";
+
 import { router } from "./router";
 
 import "./style.css";
@@ -14,12 +16,13 @@ import "primeicons/primeicons.css";
 const pinia = createPinia();
 const app = createApp(App);
 
+app.use(ToastService);
 app.use(PrimeVue, {
   theme: {
     preset: Aura,
     options: {
       prefix: "p",
-      darkModeSelector: "system",
+      darkModeSelector: '[data-mode="dark"]',
       cssLayer: false,
     },
   },

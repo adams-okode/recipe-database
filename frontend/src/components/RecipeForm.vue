@@ -134,6 +134,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { defineProps } from "vue";
+import { useToast } from "primevue/usetoast";
 
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
@@ -154,6 +155,8 @@ interface FormData {
 const props = defineProps<{
   recipe: Recipe | null;
 }>();
+
+const toast = useToast();
 
 // Reactive form data
 const formData = ref<FormData>({
@@ -230,11 +233,6 @@ const submitRecipe = async () => {
       data.append("image", formData.value.image);
     }
 
-    // Log the FormData entries for debugging
-    for (let pair of data.entries()) {
-      console.log(pair[0] + ", " + pair[1]);
-    }
-
     // Choose method and endpoint based on mode
     const method = mode.value === "Update" ? "PUT" : "POST";
     const url = `http://localhost:8000/api/recipes${
@@ -242,7 +240,7 @@ const submitRecipe = async () => {
     }`;
 
     const response = await axios({
-      method,
+      method: "POST",
       url,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -252,15 +250,33 @@ const submitRecipe = async () => {
     });
 
     console.log(`${mode.value} recipe successfully:`, response.data);
-    alert(`${mode.value} recipe successfully!`);
+
+    toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: `${mode.value} recipe successfully!`,
+      life: 3000,
+    });
     resetForm();
-  } catch (error) {
+  } catch (error: any) {
     if (error.response && error.response.status === 422) {
       console.error("Validation errors:", error.response.data.errors);
-      alert(`Validation failed: ${JSON.stringify(error.response.data.errors)}`);
+
+      toast.add({
+        severity: "contrast",
+        summary: "Error!",
+        detail: mode.value + " Failed",
+        life: 3000,
+      });
     } else {
       console.error(error);
-      alert(`Failed to ${mode.value.toLowerCase()} recipe. Please try again.`);
+
+      toast.add({
+        severity: "contrast",
+        summary: "Error",
+        detail: `Failed to ${mode.value.toLowerCase()} recipe. Please try again.`,
+        life: 3000,
+      });
     }
   }
 };
@@ -284,11 +300,22 @@ const deleteRecipe = async () => {
       },
     });
 
-    alert("Recipe deleted successfully!");
-    resetForm(); // Reset the form to create a new recipe
+    toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: "Recipe deleted successfully!",
+      life: 3000,
+    });
+
+    resetForm();
   } catch (error) {
     console.error(error);
-    alert("Failed to delete the recipe. Please try again.");
+    toast.add({
+      severity: "contrast",
+      summary: "Error",
+      detail: "Failed to delete the recipe. Please try again.",
+      life: 3000,
+    });
   }
 };
 

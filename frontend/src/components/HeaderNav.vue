@@ -15,7 +15,17 @@
             >Flowbite</span
           >
         </a>
-        <div class="flex items-center lg:order-2"></div>
+        <div class="flex items-center lg:order-2">
+          <!-- Dark Mode Toggle Button -->
+          <button
+            @click="toggleDarkMode"
+            class="focus:outline-none focus:ring-2 focus:ring-gray-200 rounded-full text-gray-700 dark:text-gray-300"
+            aria-label="Toggle Dark Mode"
+          >
+            <span v-if="isDark" class="pi pi-sun text-2xl"></span>
+            <span v-else class="pi pi-moon text-2xl"></span>
+          </button>
+        </div>
         <div
           class="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1"
           id="mobile-menu-2"
@@ -38,6 +48,27 @@
   </header>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { computed } from "vue";
+import { useColorMode } from "@vueuse/core";
+
+// Use VueUse's useColorMode with custom selector
+const colorMode = useColorMode({
+  selector: "html", // The element to apply the attribute
+  attribute: "data-mode", // The attribute to use
+  modes: {
+    dark: "dark", // Set the dark mode value
+    light: "light", // Set the light mode value
+  },
+});
+
+// Computed property to check if the current mode is dark
+const isDark = computed(() => colorMode.value === "dark");
+
+// Function to toggle dark mode
+const toggleDarkMode = () => {
+  colorMode.value = isDark.value ? "light" : "dark";
+};
+</script>
 
 <style scoped></style>
