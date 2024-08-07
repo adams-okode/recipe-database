@@ -95,22 +95,38 @@
         </label>
         <CustomDropZone @file-added="handleFileAdded" />
         <!-- Show image if recipe ID is set -->
-        <div v-if="props.recipe && props.recipe.id && props.recipe.image_url">
-          <img
-            :src="props.recipe.image_url"
-            alt="Recipe Image"
-            class="mt-4 w-[200px] h-[200px] rounded-md shadow-sm"
-          />
+        <div class="flex justify-center">
+          <div v-if="props.recipe && props.recipe.id && props.recipe.image_url">
+            <img
+              :src="props.recipe.image_url"
+              alt="Recipe Image"
+              class="mt-4 w-[100px] h-[100px] rounded-md shadow-sm"
+            />
+          </div>
         </div>
       </div>
 
-      <!-- Submit Button -->
+      <!-- Submit and Delete Buttons -->
+
       <Button
         :label="mode + ' Recipe'"
         icon="pi pi-check"
         type="submit"
         class="w-full py-2"
       />
+
+      <div class="flex justify-center">
+        <!-- Delete Button, only show when updating a recipe -->
+        <Button
+          v-if="mode === 'Update'"
+          label="Delete Recipe"
+          icon="pi pi-times"
+          class="w-1/2 mx-auto py-2"
+          severity="secondary"
+          outlined
+          @click="deleteRecipe"
+        />
+      </div>
     </form>
   </div>
 </template>
@@ -220,13 +236,13 @@ const submitRecipe = async () => {
     }
 
     // Choose method and endpoint based on mode
-
+    const method = mode.value === "Update" ? "PUT" : "POST";
     const url = `http://localhost:8000/api/recipes${
-      mode.value === "Update" ? `/${props.recipe!.id}` : ""
+      method === "PUT" ? `/${props.recipe!.id}` : ""
     }`;
 
     const response = await axios({
-      method: "POST",
+      method,
       url,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -237,9 +253,42 @@ const submitRecipe = async () => {
 
     console.log(`${mode.value} recipe successfully:`, response.data);
     alert(`${mode.value} recipe successfully!`);
+    resetForm();
+  } catch (error) {
+    if (error.response && error.response.status === 422) {
+      console.error("Validation errors:", error.response.data.errors);
+      alert(`Validation failed: ${JSON.stringify(error.response.data.errors)}`);
+    } else {
+      console.error(error);
+      alert(`Failed to ${mode.value.toLowerCase()} recipe. Please try again.`);
+    }
+  }
+};
+
+// Delete the recipe
+const deleteRecipe = async () => {
+  if (!props.recipe || !props.recipe.id) {
+    return;
+  }
+
+  const confirmation = confirm("Are you sure you want to delete this recipe?");
+  if (!confirmation) {
+    return;
+  }
+
+  try {
+    const url = `http://localhost:8000/api/recipes/${props.recipe.id}`;
+    await axios.delete(url, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    alert("Recipe deleted successfully!");
+    resetForm(); // Reset the form to create a new recipe
   } catch (error) {
     console.error(error);
-    alert(`Failed to ${mode.value.toLowerCase()} recipe. Please try again.`);
+    alert("Failed to delete the recipe. Please try again.");
   }
 };
 
